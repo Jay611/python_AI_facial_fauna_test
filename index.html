@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+        integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+    <title>Hello, world!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light nav-distance">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Facial fauna test</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section">
+        <h1 class="title">AI Facial Fauna Test (Male)</h1>
+        <h2 class="subtitle">What kind of animal do I look like?</h2>
+    </section>
+
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <div class="container file-upload">
+        <div class="image-upload-wrap">
+            <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" />
+            <div class="drag-text">
+                <i class="fas fa-upload fa-3x mt-5 pb-2"></i>
+                <h3 class="upload-text mb-5">Drag and drop a file or select add Image</h3>
+            </div>
+        </div>
+        <div class="file-upload-content">
+            <img class="file-upload-image" id="face-image" src="#" alt="your image" />
+            <p class="matched-animal"></p>
+            <p class="result-message"></p>
+            <p class="celebrities"></p>
+            <div id="label-container"></div>
+            <div class="image-title-wrap">
+                <button type="button" onclick="removeUpload()" class="remove-image">Retry with another photo
+                    <!-- <span class="image-title">Uploaded Image</span></button> -->
+            </div>
+        </div>
+    </div>
+
+    <div id="webcam-container"></div>
+
+    <div id="disqus_thread"></div>
+    <script>
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        (function () { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            s.src = 'https://jaehan.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('.image-upload-wrap').hide();
+
+                    $('.file-upload-image').attr('src', e.target.result);
+                    $('.file-upload-content').show();
+
+                    // $('.image-title').html(input.files[0].name);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+                init().then(() => {
+                    predict()
+                })
+
+            } else {
+                removeUpload();
+            }
+        }
+
+        function removeUpload() {
+            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+            $('.file-upload-content').hide();
+            $('.image-upload-wrap').show();
+        }
+        $('.image-upload-wrap').bind('dragover', function () {
+            $('.image-upload-wrap').addClass('image-dropping');
+        });
+        $('.image-upload-wrap').bind('dragleave', function () {
+            $('.image-upload-wrap').removeClass('image-dropping');
+        });
+
+        $(".label-container").empty();
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        // More API functions here:
+        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "https://teachablemachine.withgoogle.com/models/iyC0B_7Q6/";
+
+        let model, webcam, labelContainer, maxPredictions;
+
+        // Load the image model and setup the webcam
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // load the model and metadata
+            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+            // or files from your local hard drive
+            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) { // and class labels
+                labelContainer.appendChild(document.createElement("div")).className = "bar-container row";
+            }
+        }
+
+        // run the webcam image through the image model
+        async function predict() {
+            // predict can take in an image, video or canvas html element
+            var image = document.getElementById("face-image")
+            const prediction = await model.predict(image, false);
+            prediction.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+            var matchedAnimal, resultMessage, celebrities;
+            switch (prediction[0].className) {
+                case "dog":
+                    matchedAnimal = "Cute Puppy-face";
+                    resultMessage = "With your cute big eyes and a friendly smile, you bring joy to everybody around you! Due to your kind and playful personality, you are always popular with everyone. You become especially more adorable when you are with your gf/bf. When their attention is lacking you can become needy and lonely, but nevertheless is always still so cute, just like a puppy!";
+                    celebrities = "Puppy faced celebrities: Song Joong-ki, Park Bo-gum, Baek Hyun (EXO), Kang Daniel (Wanna One), Cha Eun-woo (ASTRO)"
+                    break;
+                case "cat":
+                    matchedAnimal = "Chic Cat-face";
+                    resultMessage = "Due to your cat-liked eyes and sharp features, your first impression looks cold, but your always popular due to that chic charm. Though you have a strong ego, you still like getting attention from the ones you love, and you know how to love them back! You give big thrills to your gf/bf with your sharp but somewhat sweet charms!";
+                    celebrities = "Cat faced celebrities: Kang Dong-won, Xiumin (EXO), Hwang Min-hyun (NU'EST), Key (SHINee), and Kim Hee-chul (Super Junior)"
+                    break;
+                case "rabbit":
+                    matchedAnimal = "Innocent Bunny-face";
+                    resultMessage = "With your adorable cheeks and front teeth, you have that innocent and pure look, just like a cute bunny! You can be a handful sometimes because of your curiosity, but you still bring so much joy! Your fun just to look at, especially when you are eating your favorite food with your loving gf/bf.";
+                    celebrities = "Bunny faced celebrities: Jung Kook(BTS), Park Ji Hoon (Wanna One), Doyoung (nct), Suho (EXO), Bobby (ICON)";
+                    break;
+                case "dinosaur":
+                    matchedAnimal = "Charismatic Dino-face";
+                    resultMessage = "With your strong facial features like a strong jawline, your first impressions might seem cold and bold, but you definitely have a soft side to you which makes you even more attractive! You are a tough man with charisma that makes your gf/bf go crazy for your charm!";
+                    celebrities = "Dinosaur faced celebrities: Gong Yoo, Kim Woo-bin, Hong Jong-hyun, Yook Sung-jae (BTOB), Yoon Doo-joon (Highlight)";
+                    break;
+                case "bear":
+                    matchedAnimal = "Comfy Bear-face";
+                    resultMessage = "Your first impression might seem hard to approach, but as soon as people get to know you, they find out you’re full of charms. You have a delicate personality who devotedly takes care of your gf/bf. You are comfy yet trustworthy, which makes you the dream boyfriend for anyone!";
+                    celebrities = "Bear faced celebrities: Cho Jin-woong, Yoon Kyun-sang, Ma Dong-seok, Park Sung-woong, Ahn Jae-hong";
+                    break;
+                default:
+                    break;
+            }
+            $('.matched-animal').html(matchedAnimal);
+            $('.result-message').html(resultMessage);
+            $('.celebrities').html(celebrities);
+            for (let i = 0; i < maxPredictions; i++) {
+                var color;
+                switch (prediction[i].className) {
+                    case "dog":
+                        color = "0, 0, 255"
+                        break;
+                    case "cat":
+                        color = "255, 165, 0"
+                        break;
+                    case "rabbit":
+                        color = "238, 130, 238"
+                        break;
+                    case "dinosaur":
+                        color = "50, 205, 50"
+                        break;
+                    case "bear":
+                        color = "255, 0, 0"
+                        break;
+                    default:
+                        break;
+                }
+
+                var barTextLeftAlign = " justify-content-center";
+                if(prediction[i].probability.toFixed(2) < 0.1){
+                    barTextLeftAlign = " justify-content-start"
+                }
+
+                labelContainer.childNodes[i].innerHTML =
+                    '<div class="col-3">' +
+                    '<span class="bar-label">' + prediction[i].className + '</span>' +
+                    '</div>' +
+                    '<div class="col-9">' +
+                    '<div class="bar-outer" style="--bg: ' + color + '">' +
+                    '<div class="bar-inner d-flex align-items-center'+ barTextLeftAlign +'" style="--bg: ' + color + ';--width: ' + prediction[i].probability.toFixed(2) * 100 + '%">' +
+                    '<span class="bar-text">' + prediction[i].probability.toFixed(2) * 100 + "<small>%</small>" + '</span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+            }
+        }
+    </script>
+
+</body>
+<!-- Copyright (c) 2021 by Aaron Vanston (https://codepen.io/aaronvanston/pen/yNYOXR)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+     -->
+
+</html>
